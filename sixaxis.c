@@ -7,21 +7,7 @@
 #include <string.h>
 
 #include "sixaxis.h"
-
-/* attributions go to: https://github.com/drewnoakes/joystick */
-
-typedef int sixaxis_fd;
-
-#define JS_EVENT_BUTTON 0x01 // button pressed/released
-#define JS_EVENT_AXIS   0x02 // joystick moved
-#define JS_EVENT_INIT   0x80 // initial state of device
-
-typedef struct {
-    unsigned int time;      /* ts of the event in ms */
-    short value;            /* value of the js event */
-    unsigned char type;     /* event type */
-    unsigned char number;   /* axis/button number */
-} Sixaxis_Event;
+#include "state.h"
 
 sixaxis_fd connect_sixaxis(int js_number) {
     int fd = 0;
@@ -63,7 +49,9 @@ int sample_sixaxis(Sixaxis_Event *event, sixaxis_fd sixaxis) {
     return bytes == sizeof(*event);
 }
 
-int main(void) {
+void *sixaxis_thread(void *state_context) {
+    State *state = (State*)state_context;
+
     sixaxis_fd jsleft = connect_sixaxis(0);
 
     if (!is_connected(jsleft)) {
@@ -74,6 +62,7 @@ int main(void) {
     Sixaxis_Event event;
     memset(&event, 0, sizeof(Sixaxis_Event));
 
+    /*
     while( !(event.number == 16 && event.value == 1) ) {
         usleep(500);
         
@@ -86,7 +75,58 @@ int main(void) {
             }
         }
     }
-    
+    */
+
+    int sample = 0;
+    while( state->current_state != STATE_EXIT ) {
+        usleep(500);
+
+        sample = sample_sixaxis(&event, jsleft);
+        if (sample && is_button(&event)) {
+
+            /* we only care when the button is pressed */
+            if (!event.value) {
+                continue;
+            }
+
+            switch(event.number) {
+            case BUTTON_SQUARE:
+                set_judgement(state, LEFT, GOOD_LIFT);
+                break;
+            case BUTTON_X:
+                set_judgement(state, MAIN, GOOD_LIFT);
+                break;
+            case BUTTON_CIRCLE:
+                set_judgement(state, RIGHT, GOOD_LIFT);
+                break;
+            case BUTTON_LEFT:
+                set_judgement(state, LEFT, BAD_LIFT);
+                break;
+            case BUTTON_DOWN:
+                set_judgement(state, MAIN, BAD_LIFT);
+                break;
+            case BUTTON_RIGHT:
+                set_judgement(state, RIGHT, BAD_LIFT);
+                break;
+            case BUTTON_PS:
+                printf("setting state to demo\n");
+                set_state(state, STATE_DEMO);
+                break;
+            case BUTTON_START:
+                printf("setting state to start\n");
+                set_state(state, STATE_START);
+                break;
+            case BUTTON_SELECT:
+                printf("setting state to exit\n");
+                set_state(state, STATE_EXIT);
+                break;
+            default:
+                /* ignore it */
+                break;
+            }
+        }
+    }
+
     disconnect_sixaxis(jsleft);
-    return 0;
+    return NULL;
 }

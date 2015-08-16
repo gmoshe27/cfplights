@@ -1,8 +1,10 @@
-#include "state.h"
 #include <unistd.h>
 #include <stdio.h>
 #include <stdlib.h>
 #include <wiringPi.h>
+
+#include "state.h"
+#include "sixaxis.h"
 
 void *input_thread(void *state_context) {
     State *state = (State*)state_context;
@@ -47,7 +49,7 @@ void *input_thread(void *state_context) {
             break;
         }
 
-        sleep(1);
+        usleep(1);
     }
 
     printf("quitting input thread\n");
@@ -65,7 +67,7 @@ int main(void) {
         exit(EXIT_FAILURE);
     }
 
-    pthread_create(&thread, NULL, input_thread, (void*)state);
+    pthread_create(&thread, NULL, sixaxis_thread, (void*)state);
 
     /* wait for the input thread and state thread to quit */
     pthread_join(thread, NULL);
