@@ -19,13 +19,14 @@
 typedef struct {
     int                 current_state;
     pthread_mutex_t     lock;
-    pthread_t           *thread;
     int                 *pins;
     int                 judgements[3];
     int                 input_method;
     int                 connection_count;
     int                 connected_joystick[3];
 } State;
+
+void state_loop(State *state);
 
 int initialize_state(State **state, int input_method);
 
@@ -36,8 +37,6 @@ void set_state(State *state, int new_state);
 void demo_mode(State *state);
 
 void waiting_for_connections(State *state);
-
-void start_lift(State *state);
 
 void wait_for_judgements(State* state);
 

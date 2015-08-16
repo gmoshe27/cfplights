@@ -54,7 +54,8 @@ void *sixaxis_thread(void *state_context) {
     sixaxis_fd jsleft = 0;
 
     /* wait for a connection from the controller */
-    while( (jsleft = connect_sixaxis(0)) == 0) {
+    printf("waiting for judge to connect\n");
+    while( (jsleft = connect_sixaxis(0)) == -1) {
         usleep(300);
     }
 

@@ -48,3 +48,8 @@ install: lights
 #    @mkdir -p        $(DESTDIR)$(PREFIX)/man/man1
 #    @cp gpio.1       $(DESTDIR)$(PREFIX)/man/man1
 
+.PHONY: startup
+startup: lights
+	@echo "[Startup]"
+	@sudo update-rc.d lights defaults
+

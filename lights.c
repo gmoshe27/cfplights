@@ -21,11 +21,10 @@ int main(void) {
     pthread_create(&thread, NULL, sixaxis_thread, (void*)state);
 
     /* wait for the input thread and state thread to quit */
+    state_loop(state);
     pthread_join(thread, NULL);
-    pthread_join(*(state->thread), NULL);
 
     release_state(state);
-
     return 0;
 }
 

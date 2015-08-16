@@ -8,9 +8,7 @@
 
 void reset_judgements();
 
-void *state_thread(void *state_context) {
-    State* state = (State*)state_context;
-
+void state_loop(State *state) {
     while(state->current_state != STATE_EXIT) {
  
         if (state->current_state == STATE_INIT) {
@@ -61,14 +59,11 @@ void *state_thread(void *state_context) {
     }
 
     set_lights_off();
-
-    printf("quitting state thread\n");
-    return NULL;
+    printf("quitting state loop\n");
 }
 
 int initialize_state(State **state, int input_method) {
     *state = (State*)malloc(sizeof(State));
-    pthread_t thread;
 
     if (state == NULL && *state == NULL) {
         return -1;
@@ -78,12 +73,6 @@ int initialize_state(State **state, int input_method) {
 
     (*state)->current_state = STATE_INIT;
     (*state)->input_method = input_method;
-
-    int create_status = pthread_create(&thread, NULL, state_thread, (void*)(*state));
-    (*state)->thread = &thread;
-    if (create_status) {
-        return create_status;
-    }
 
     if (pthread_mutex_init(&(*state)->lock, NULL)) {
         return -1;
@@ -100,10 +89,6 @@ int initialize_state(State **state, int input_method) {
 
 void release_state(State *state) {
     pthread_mutex_destroy(&state->lock);
-
-    if (state->thread != NULL) {
-        pthread_join(*(state->thread), NULL);
-    }
 
     if (state != NULL) {
         free(state);
@@ -141,13 +126,6 @@ void waiting_for_connections(State *state) {
 
     printf("all judges connected\n");
     set_state(state, STATE_DEMO);
-}
-
-void start_lift(State *state) {
-    /* set all pins high for 1.5 seconds */
-    /* reset the pins */
-    /* clear out all of the judge values */
-    /* send vibration to all judges */
 }
 
 void wait_for_judgements(State *state) {
