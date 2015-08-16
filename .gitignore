@@ -1,7 +1,7 @@
 # compiled source #
 *.o
 
-# output file
+# output files
 lights
-
+cfplightsd
 sixpair/sixpair
