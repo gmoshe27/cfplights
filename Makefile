@@ -10,12 +10,12 @@ INCLUDE	= -I$(DESTDIR)$(PREFIX)/include
 CFLAGS	= $(DEBUG) -Wall $(INCLUDE) -Winline -pipe -std=c99
 
 LDFLAGS	= -L$(DESTDIR)$(PREFIX)/lib
-LIBS    = -lwiringPi -lwiringPiDev -lpthread -lm
+LIBS    = -lwiringPi -lwiringPiDev -lpthread
 
 # May not need to alter anything below this line
 ###############################################################################
 
-SRC	=	lights.c state.c pins.c
+SRC	=	lights.c state.c pins.c sixaxis.c
 
 OBJ	=	$(SRC:.c=.o)
 
@@ -42,11 +42,9 @@ tags:	$(SRC)
 .PHONY: install
 install: lights
 	@echo "[Install]"
-	@chown root.root lights
-	@chmod 4755 lights
-#    @cp gpio        $(DESTDIR)$(PREFIX)/bin
-#    @chown root.root    $(DESTDIR)$(PREFIX)/bin/gpio
-#    @chmod 4755     $(DESTDIR)$(PREFIX)/bin/gpio
-#    @mkdir -p       $(DESTDIR)$(PREFIX)/man/man1
-#    @cp gpio.1      $(DESTDIR)$(PREFIX)/man/man1
+	@cp lights        $(DESTDIR)$(PREFIX)/bin
+	@chown root.root  $(DESTDIR)$(PREFIX)/bin/lights
+	@chmod 4755       $(DESTDIR)$(PREFIX)/bin/lights
+#    @mkdir -p        $(DESTDIR)$(PREFIX)/man/man1
+#    @cp gpio.1       $(DESTDIR)$(PREFIX)/man/man1
 
