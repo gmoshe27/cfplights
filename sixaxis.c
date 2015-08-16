@@ -69,14 +69,23 @@ void *sixaxis_thread(void *state_context) {
     memset(&event, 0, sizeof(Sixaxis_Event));
 
     int sample = 0;
+    int active = 0;
+
     while( state->current_state != STATE_EXIT ) {
         usleep(500);
 
         sample = sample_sixaxis(&event, jsleft);
         if (sample && is_button(&event)) {
 
+            printf("Buttton %d is %s\n", event.number, event.value == 0? "up" : "down");
+            /* Button L2 is our control button, you can't key any values in if it is not held down */
+            if (event.number == BUTTON_L2) {
+                active = event.value;
+                continue;
+            }
+
             /* we only care when the button is pressed */
-            if (!event.value) {
+            if (!event.value || !active) {
                 continue;
             }
 

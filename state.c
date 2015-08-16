@@ -26,7 +26,7 @@ void *state_thread(void *state_context) {
             }
         }
         else if (state->current_state == STATE_CONNECTING) {
-            printf("in state connecting\ n");
+            printf("in state connecting\n");
             waiting_for_connections(state);
         }
         else if (state->current_state == STATE_DEMO) {
@@ -57,7 +57,7 @@ void *state_thread(void *state_context) {
             display_results(state);
         }
 
-        sleep(1);
+        usleep(1);
     }
 
     set_lights_off();
@@ -117,6 +117,8 @@ void set_state(State *state, int new_state) {
 }
 
 void demo_mode(State *state) {
+    set_lights_off();
+
     /* do cool stuff */
     while (state->current_state == STATE_DEMO) {
         for (int i = 0; i < 6; i++) {
