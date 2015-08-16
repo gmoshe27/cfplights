@@ -15,7 +15,7 @@ LIBS    = -lwiringPi -lwiringPiDev -lpthread
 # May not need to alter anything below this line
 ###############################################################################
 
-SRC	=	lights.c state.c pins.c sixaxis.c
+SRC	=	lights.c state.c pins.c sixaxis.c keyboard.c
 
 OBJ	=	$(SRC:.c=.o)
 

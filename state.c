@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <wiringPi.h>
 #include <unistd.h>
+#include <string.h>
 
 void reset_judgements();
 
@@ -16,7 +17,19 @@ void *state_thread(void *state_context) {
             /* do some initialization */
             printf("in state init\n");
             set_lights_off();
-            set_state(state, STATE_DEMO);
+
+            if (state->input_method == INPUT_KEYBOARD) {
+                printf("input keyboard\n");
+                set_state(state, STATE_DEMO);
+            }
+            else {
+                printf("input joystick\n");
+                set_state(state, STATE_CONNECTING);
+            }
+        }
+        else if (state->current_state == STATE_CONNECTING) {
+            printf("waiting for connection...\n");
+            waiting_for_connections(state);
         }
         else if (state->current_state == STATE_DEMO) {
             printf("in state demo\n");
@@ -49,11 +62,13 @@ void *state_thread(void *state_context) {
         sleep(1);
     }
 
+    set_lights_off();
+
     printf("quitting state thread\n");
     return NULL;
 }
 
-int initialize_state(State **state) {
+int initialize_state(State **state, int input_method) {
     *state = (State*)malloc(sizeof(State));
     pthread_t thread;
 
@@ -61,7 +76,10 @@ int initialize_state(State **state) {
         return -1;
     }
 
+    memset(*state, 0, sizeof(State));
+
     (*state)->current_state = STATE_INIT;
+    (*state)->input_method = input_method;
 
     int create_status = pthread_create(&thread, NULL, state_thread, (void*)(*state));
     (*state)->thread = &thread;
@@ -110,6 +128,20 @@ void demo_mode(State *state) {
             delay(200);
         }
     }
+}
+
+void waiting_for_connections(State *state) {
+    printf("start wiating for connections\n");
+    while(state->current_state == STATE_CONNECTING && state->connection_count != 1) {
+        printf("start wiating for connections 1 2 3...\n");
+        digitalWrite(0, HIGH);
+        delay(200);
+        digitalWrite(0, LOW);
+        delay(200);
+    }
+
+    printf("moving on..\n");
+    set_state(state, STATE_DEMO);
 }
 
 void start_lift(State *state) {
@@ -163,5 +195,13 @@ void reset_judgements(State *state) {
     state->judgements[1] = 0;
     state->judgements[2] = 0;
 
+    pthread_mutex_unlock(&state->lock);
+}
+
+void add_connection(State *state, int judge) {
+    pthread_mutex_lock(&state->lock);
+    state->connection_count += 1;
+    state->connected_joystick[judge] = 1;
+    printf("connection count is %d\n", state->connection_count);
     pthread_mutex_unlock(&state->lock);
 }

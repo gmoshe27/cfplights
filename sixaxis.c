@@ -51,31 +51,25 @@ int sample_sixaxis(Sixaxis_Event *event, sixaxis_fd sixaxis) {
 
 void *sixaxis_thread(void *state_context) {
     State *state = (State*)state_context;
+    sixaxis_fd jsleft = 0;
 
-    sixaxis_fd jsleft = connect_sixaxis(0);
+    /* wait for a connection from the controller */
+    printf ("waiting thread\n");
+    while( (jsleft = connect_sixaxis(0)) == 0) {
+        usleep(300);
+    }
 
+    printf("is connected?\n");
     if (!is_connected(jsleft)) {
         printf("Could not connect to joystick 0\n");
         exit(EXIT_FAILURE);
     }
 
+    printf("adding connection to JUDGE_MAIN\n");
+    add_connection(state, JUDGE_MAIN);
+
     Sixaxis_Event event;
     memset(&event, 0, sizeof(Sixaxis_Event));
-
-    /*
-    while( !(event.number == 16 && event.value == 1) ) {
-        usleep(500);
-        
-        if (sample_sixaxis(&event, jsleft)) {
-            if (is_button(&event)) {
-                printf("Button %u is %s\n", event.number, event.value == 0 ? "up" : "down");
-            }
-            else if (is_axis(&event)) {
-                printf("Axis %u is at position %d\n", event.number, event.value);
-            }
-        }
-    }
-    */
 
     int sample = 0;
     while( state->current_state != STATE_EXIT ) {
