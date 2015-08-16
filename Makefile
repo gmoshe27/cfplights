@@ -15,15 +15,23 @@ LIBS    = -lwiringPi -lwiringPiDev -lpthread
 # May not need to alter anything below this line
 ###############################################################################
 
+DSRC = cfplightsd.c state.c pins.c sixaxis.c keyboard.c
+
+DOBJ = $(DSRC:.c=.o)
+
 SRC	=	lights.c state.c pins.c sixaxis.c keyboard.c
 
 OBJ	=	$(SRC:.c=.o)
 
-all:		lights
+all:	lights cfplightsd
 
 lights:	$(OBJ)
 	@echo [Link]
 	@$(CC) -o $@ $(OBJ) $(LDFLAGS) $(LIBS)
+
+cfplightsd: $(DOBJ)
+	@echo [Link]
+	@$(CC) -o $@ $(DOBJ) $(LDFLAGS) $(LIBS)
 	
 .c.o:
 	@echo [Compile] $<
@@ -32,7 +40,7 @@ lights:	$(OBJ)
 .PHONY:	clean
 clean:
 	@echo "[Clean]"
-	@rm -f $(OBJ) lights *~ core tags *.bak
+	@rm -f $(OBJ) lights cfplightsd *~ core tags *.bak
 
 .PHONY:	tags
 tags:	$(SRC)
@@ -49,7 +57,12 @@ install: lights
 #    @cp gpio.1       $(DESTDIR)$(PREFIX)/man/man1
 
 .PHONY: startup
-startup: lights
-	@echo "[Startup]"
-	@sudo update-rc.d lights defaults
+installd: cfplightsd
+	@echo "[Installing Daemon]"
+	@cp cfplightsd      $(DESTDIR)$(PREFIX)/sbin
+	@chown root.root    $(DESTDIR)$(PREFIX)/sbin/cfplightsd
+	@chmod 4755         $(DESTDIR)$(PREFIX)/sbin/cfplightsd
+	@cp cfplights.sh /etc/init.d/cfplights
+	@chmod +x /etc/init.d/cfplights
+	@update-rc.d cfplights defaults
 
