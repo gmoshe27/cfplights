@@ -19,16 +19,14 @@ void *state_thread(void *state_context) {
             set_lights_off();
 
             if (state->input_method == INPUT_KEYBOARD) {
-                printf("input keyboard\n");
                 set_state(state, STATE_DEMO);
             }
             else {
-                printf("input joystick\n");
                 set_state(state, STATE_CONNECTING);
             }
         }
         else if (state->current_state == STATE_CONNECTING) {
-            printf("waiting for connection...\n");
+            printf("in state connecting\ n");
             waiting_for_connections(state);
         }
         else if (state->current_state == STATE_DEMO) {
@@ -131,7 +129,6 @@ void demo_mode(State *state) {
 }
 
 void waiting_for_connections(State *state) {
-    printf("start wiating for connections\n");
     while(state->current_state == STATE_CONNECTING && state->connection_count != 1) {
         printf("start wiating for connections 1 2 3...\n");
         digitalWrite(0, HIGH);
@@ -140,7 +137,7 @@ void waiting_for_connections(State *state) {
         delay(200);
     }
 
-    printf("moving on..\n");
+    printf("all judges connected\n");
     set_state(state, STATE_DEMO);
 }
 
@@ -202,6 +199,5 @@ void add_connection(State *state, int judge) {
     pthread_mutex_lock(&state->lock);
     state->connection_count += 1;
     state->connected_joystick[judge] = 1;
-    printf("connection count is %d\n", state->connection_count);
     pthread_mutex_unlock(&state->lock);
 }

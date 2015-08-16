@@ -54,18 +54,15 @@ void *sixaxis_thread(void *state_context) {
     sixaxis_fd jsleft = 0;
 
     /* wait for a connection from the controller */
-    printf ("waiting thread\n");
     while( (jsleft = connect_sixaxis(0)) == 0) {
         usleep(300);
     }
 
-    printf("is connected?\n");
     if (!is_connected(jsleft)) {
         printf("Could not connect to joystick 0\n");
         exit(EXIT_FAILURE);
     }
 
-    printf("adding connection to JUDGE_MAIN\n");
     add_connection(state, JUDGE_MAIN);
 
     Sixaxis_Event event;
