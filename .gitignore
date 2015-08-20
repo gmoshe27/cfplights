@@ -2,6 +2,6 @@
 *.o
 
 # output files
-lights
-cfplightsd
 sixpair/sixpair
+bin/*
+obj/*
