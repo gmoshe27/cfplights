@@ -15,47 +15,52 @@ LIBS    = -lwiringPi -lwiringPiDev -lpthread
 # May not need to alter anything below this line
 ###############################################################################
 
-DSRC = cfplightsd.c state.c pins.c sixaxis.c keyboard.c
+BINDIR = bin
+SRCDIR = src
+OBJDIR = obj
 
-DOBJ = $(DSRC:.c=.o)
+VPATH := $(SRCDIR)
+
+DSRC = cfplightsd.c state.c pins.c sixaxis.c keyboard.c
+DOBJ = $(DSRC:%.c=$(OBJDIR)/%.o)
 
 SRC	=	lights.c state.c pins.c sixaxis.c keyboard.c
+OBJ	=	$(SRC:%.c=$(OBJDIR)/%.o)
 
-OBJ	=	$(SRC:.c=.o)
-
-all:	lights cfplightsd
+all:	lights cfplightsd sixpair
 
 lights:	$(OBJ)
 	@echo [Link]
-	@$(CC) -o $@ $(OBJ) $(LDFLAGS) $(LIBS)
+	@mkdir -p $(BINDIR)
+	@$(CC) -o $(BINDIR)/$@ $(OBJ) $(LDFLAGS) $(LIBS)
 
 cfplightsd: $(DOBJ)
 	@echo [Link]
-	@$(CC) -o $@ $(DOBJ) $(LDFLAGS) $(LIBS)
+	@mkdir -p $(BINDIR)
+	@$(CC) -o $(BINDIR)/$@ $(DOBJ) $(LDFLAGS) $(LIBS)
+
+.PHONY: sixpair
+sixpair: 
+	@echo [Compile Sixpair]
+	@$(CC) -o $(BINDIR)/sixpair sixpair/sixpair.c -lusb
 	
-.c.o:
+obj/%.o:src/%.c
 	@echo [Compile] $<
+	@mkdir -p $(OBJDIR)
 	@$(CC) -c $(CFLAGS) $< -o $@
 
 .PHONY:	clean
 clean:
 	@echo "[Clean]"
-	@rm -f $(OBJ) $(DOBJ) lights cfplightsd *~ core tags *.bak
+	@rm -f $(OBJDIR)/*.o $(BINDIR)/* *~ core tags *.bak
 
-.PHONY:	tags
-tags:	$(SRC)
-	@echo [ctags]
-	@ctags $(SRC)
+#.PHONY:	tags
+#tags:	$(SRC)
+#	@echo [ctags]
+#	@ctags $(SRC)
 
 .PHONY: install
-install: lights
-	@echo "[Install]"
-	@cp lights        $(DESTDIR)$(PREFIX)/bin
-	@chown root.root  $(DESTDIR)$(PREFIX)/bin/lights
-	@chmod 4755       $(DESTDIR)$(PREFIX)/bin/lights
-
-.PHONY: installd
-installd: cfplightsd
+install: cfplightsd
 	@echo "[Installing Daemon]"
 	@cp cfplightsd      $(DESTDIR)$(PREFIX)/sbin
 	@chown root.root    $(DESTDIR)$(PREFIX)/sbin/cfplightsd
