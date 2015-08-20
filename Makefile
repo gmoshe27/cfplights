@@ -40,7 +40,7 @@ cfplightsd: $(DOBJ)
 .PHONY:	clean
 clean:
 	@echo "[Clean]"
-	@rm -f $(OBJ) lights cfplightsd *~ core tags *.bak
+	@rm -f $(OBJ) $(DOBJ) lights cfplightsd *~ core tags *.bak
 
 .PHONY:	tags
 tags:	$(SRC)
@@ -53,10 +53,8 @@ install: lights
 	@cp lights        $(DESTDIR)$(PREFIX)/bin
 	@chown root.root  $(DESTDIR)$(PREFIX)/bin/lights
 	@chmod 4755       $(DESTDIR)$(PREFIX)/bin/lights
-#    @mkdir -p        $(DESTDIR)$(PREFIX)/man/man1
-#    @cp gpio.1       $(DESTDIR)$(PREFIX)/man/man1
 
-.PHONY: startup
+.PHONY: installd
 installd: cfplightsd
 	@echo "[Installing Daemon]"
 	@cp cfplightsd      $(DESTDIR)$(PREFIX)/sbin
