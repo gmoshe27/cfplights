@@ -19,7 +19,9 @@
 
 void process(){
     State *state;
-    pthread_t thread;
+    pthread_t thread[3];
+    Sixaxis_Context context[3];
+    int i;
 
     syslog (LOG_NOTICE, "starting cfplightsd");
     wiringPiSetup();
@@ -29,13 +31,21 @@ void process(){
         exit(EXIT_FAILURE);
     }
 
-    pthread_create(&thread, NULL, sixaxis_thread, (void*)state);
+    for (i = 0; i < 3; i++) {
+        context[i].state = (void*)state;
+        context[i].judge = i;
+
+        pthread_create(&thread[i], NULL, sixaxis_thread, (void*) &context[i]);
+    }
 
     /* run the main loop */
     state_loop(state);
 
     /* wait for the input thread and state thread to quit */
-    pthread_join(thread, NULL);
+    for(i = 0; i < 3; i++) {
+        pthread_join(thread[i], NULL);
+    }
+    
     release_state(state);
 }
 
