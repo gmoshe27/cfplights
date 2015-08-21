@@ -125,18 +125,29 @@ void prompt_judge_to_connect(int judge_pin) {
     delay(200);    
 }
 
+void mark_judge_as_connected(int judge_pin) {
+    digitalWrite(judge_pin, HIGH);
+    digitalWrite(judge_pin + 3, HIGH);
+}
+
 void waiting_for_connections(State *state) {
     printf("start waiting for connections 1 2 3...\n");
     while(state->current_state == STATE_CONNECTING && state->connection_count != 3) {
+        if (state->connected_joystick[JUDGE_LEFT]) {
+            mark_judge_as_connected(LEFT);
+        }
+        if (state->connected_joystick[JUDGE_MAIN]) {
+            mark_judge_as_connected(MAIN);
+        }
+        if (state->connected_joystick[JUDGE_RIGHT]) {
+            mark_judge_as_connected(RIGHT);
+        }
+
         if (state->connected_joystick[JUDGE_LEFT] == 0) {
             prompt_judge_to_connect(LEFT);
         } else if (state->connected_joystick[JUDGE_MAIN] == 0) {
-            digitalWrite(LEFT, HIGH);
-            digitalWrite(LEFT + 3, HIGH);
             prompt_judge_to_connect(MAIN);
         } else {
-            digitalWrite(MAIN, HIGH);
-            digitalWrite(MAIN + 3, HIGH);
             prompt_judge_to_connect(RIGHT);
         }
     }

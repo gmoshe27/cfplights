@@ -65,7 +65,7 @@ void *sixaxis_thread(void *sixaxis_context) {
         exit(EXIT_FAILURE);
     }
 
-    add_connection(state, JUDGE_MAIN);
+    add_connection(state, context->judge);
 
     Sixaxis_Event event;
     memset(&event, 0, sizeof(Sixaxis_Event));

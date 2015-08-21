@@ -62,7 +62,7 @@ clean:
 .PHONY: install
 install: cfplightsd
 	@echo "[Installing Daemon]"
-	@cp cfplightsd      $(DESTDIR)$(PREFIX)/sbin
+	@cp $(BINDIR)/cfplightsd      $(DESTDIR)$(PREFIX)/sbin
 	@chown root.root    $(DESTDIR)$(PREFIX)/sbin/cfplightsd
 	@chmod 4755         $(DESTDIR)$(PREFIX)/sbin/cfplightsd
 	@cp cfplights.sh /etc/init.d/cfplights
