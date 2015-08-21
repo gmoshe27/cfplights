@@ -21,7 +21,7 @@ int main(void) {
 
     for (i = 0; i < 3; i++) {
         Sixaxis_Context context;
-        context.State = state;
+        context.state = (void*)state;
         context.judge = i;
 
         pthread_create(&thread[i], NULL, sixaxis_thread, (void*)&context);

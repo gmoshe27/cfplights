@@ -126,19 +126,18 @@ void prompt_judge_to_connect(int judge_pin) {
 }
 
 void waiting_for_connections(State *state) {
-    int pin = LEFT;
     while(state->current_state == STATE_CONNECTING && state->connection_count != 3) {
         printf("start waiting for connections 1 2 3...\n");
 
         if (state->connected_joystick[JUDGE_LEFT] == 0) {
             prompt_judge_to_connect(LEFT);
         } else if (state->connected_joystick[JUDGE_MAIN] == 0) {
-            digitalWrite(LEFT, HIGH)
-            digitalWrite(LEFT + 3, HIGH)
+            digitalWrite(LEFT, HIGH);
+            digitalWrite(LEFT + 3, HIGH);
             prompt_judge_to_connect(MAIN);
         } else {
-            digitalWrite(MAIN, HIGH)
-            digitalWrite(MAIN + 3, HIGH)
+            digitalWrite(MAIN, HIGH);
+            digitalWrite(MAIN + 3, HIGH);
             prompt_judge_to_connect(RIGHT);
         }
     }

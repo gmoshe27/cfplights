@@ -30,7 +30,7 @@ typedef struct {
 } Sixaxis_Event;
 
 typedef struct {
-    State 	*state;
+    void 	*state;
     int 	judge; /* judge 0 is left, judge 1 is main, judge 2 is right */
 } Sixaxis_Context;
 

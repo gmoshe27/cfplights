@@ -51,7 +51,7 @@ int sample_sixaxis(Sixaxis_Event *event, sixaxis_fd sixaxis) {
 
 void *sixaxis_thread(void *sixaxis_context) {
     Sixaxis_Context *context = (Sixaxis_Context*)sixaxis_context;
-    State *state = context->state;
+    State *state = (State*)context->state;
     sixaxis_fd js = 0;
 
     /* wait for a connection from the controller */
