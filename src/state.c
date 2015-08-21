@@ -115,13 +115,32 @@ void demo_mode(State *state) {
     }
 }
 
+void prompt_judge_to_connect(int judge_pin) {
+    /* blink the lights to prompt the judge to connect */
+    digitalWrite(judge_pin, HIGH);
+    digitalWrite(judge_pin + 3, HIGH);
+    delay(200);
+    digitalWrite(judge_pin, LOW);
+    digitalWrite(judge_pin + 3, LOW);
+    delay(200);    
+}
+
 void waiting_for_connections(State *state) {
-    while(state->current_state == STATE_CONNECTING && state->connection_count != 1) {
-        printf("start wiating for connections 1 2 3...\n");
-        digitalWrite(0, HIGH);
-        delay(200);
-        digitalWrite(0, LOW);
-        delay(200);
+    int pin = LEFT;
+    while(state->current_state == STATE_CONNECTING && state->connection_count != 3) {
+        printf("start waiting for connections 1 2 3...\n");
+
+        if (state->connected_joystick[JUDGE_LEFT] == 0) {
+            prompt_judge_to_connect(LEFT);
+        } else if (state->connected_joystick[JUDGE_MAIN] == 0) {
+            digitalWrite(LEFT, HIGH)
+            digitalWrite(LEFT + 3, HIGH)
+            prompt_judge_to_connect(MAIN);
+        } else {
+            digitalWrite(MAIN, HIGH)
+            digitalWrite(MAIN + 3, HIGH)
+            prompt_judge_to_connect(RIGHT);
+        }
     }
 
     printf("all judges connected\n");

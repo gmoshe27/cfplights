@@ -49,18 +49,19 @@ int sample_sixaxis(Sixaxis_Event *event, sixaxis_fd sixaxis) {
     return bytes == sizeof(*event);
 }
 
-void *sixaxis_thread(void *state_context) {
-    State *state = (State*)state_context;
-    sixaxis_fd jsleft = 0;
+void *sixaxis_thread(void *sixaxis_context) {
+    Sixaxis_Context *context = (Sixaxis_Context*)sixaxis_context;
+    State *state = context->state;
+    sixaxis_fd js = 0;
 
     /* wait for a connection from the controller */
     printf("waiting for judge to connect\n");
-    while( (jsleft = connect_sixaxis(0)) == -1) {
+    while( (js = connect_sixaxis(context->judge)) == -1) {
         usleep(300);
     }
 
-    if (!is_connected(jsleft)) {
-        printf("Could not connect to joystick 0\n");
+    if (!is_connected(js)) {
+        printf("Could not connect to joystick %d\n", context->judge);
         exit(EXIT_FAILURE);
     }
 
@@ -75,7 +76,7 @@ void *sixaxis_thread(void *state_context) {
     while( state->current_state != STATE_EXIT ) {
         usleep(500);
 
-        sample = sample_sixaxis(&event, jsleft);
+        sample = sample_sixaxis(&event, js);
         if (sample && is_button(&event)) {
 
             printf("Buttton %d is %s\n", event.number, event.value == 0? "up" : "down");
@@ -92,32 +93,32 @@ void *sixaxis_thread(void *state_context) {
 
             switch(event.number) {
             case BUTTON_SQUARE:
-                set_judgement(state, LEFT, GOOD_LIFT);
-                break;
-            case BUTTON_X:
-                set_judgement(state, MAIN, GOOD_LIFT);
+                set_judgement(state, context->judge, BAD_LIFT);
                 break;
             case BUTTON_CIRCLE:
-                set_judgement(state, RIGHT, GOOD_LIFT);
-                break;
-            case BUTTON_LEFT:
-                set_judgement(state, LEFT, BAD_LIFT);
-                break;
-            case BUTTON_DOWN:
-                set_judgement(state, MAIN, BAD_LIFT);
-                break;
-            case BUTTON_RIGHT:
-                set_judgement(state, RIGHT, BAD_LIFT);
+                set_judgement(state, context->judge, GOOD_LIFT);
                 break;
             case BUTTON_PS:
+                if (context->judge != JUDGE_MAIN) {
+                    break;
+                }
+
                 printf("setting state to demo\n");
                 set_state(state, STATE_DEMO);
                 break;
             case BUTTON_START:
+                if (context->judge != JUDGE_MAIN) {
+                    break;
+                }
+
                 printf("setting state to start\n");
                 set_state(state, STATE_START);
                 break;
             case BUTTON_SELECT:
+                if (context->judge != JUDGE_MAIN) {
+                    break;
+                }
+                
                 printf("setting state to exit\n");
                 set_state(state, STATE_EXIT);
                 break;
@@ -128,6 +129,6 @@ void *sixaxis_thread(void *state_context) {
         }
     }
 
-    disconnect_sixaxis(jsleft);
+    disconnect_sixaxis(js);
     return NULL;
 }

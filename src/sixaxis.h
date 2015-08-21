@@ -29,6 +29,11 @@ typedef struct {
     unsigned char number;   /* axis/button number */
 } Sixaxis_Event;
 
+typedef struct {
+    State 	*state;
+    int 	judge; /* judge 0 is left, judge 1 is main, judge 2 is right */
+} Sixaxis_Context;
+
 sixaxis_fd connect_sixaxis(int js_number);
 
 void disconnect_sixaxis(sixaxis_fd sixaxis);
@@ -43,5 +48,5 @@ int is_initial_state(Sixaxis_Event *event);
 
 int sample_sixaxis(Sixaxis_Event *event, sixaxis_fd sixaxis);
 
-void *sixaxis_thread(void *state_context);
+void *sixaxis_thread(void *sixaxis_context);
 
