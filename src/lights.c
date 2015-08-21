@@ -10,6 +10,7 @@
 int main(void) {
     State *state;
     pthread_t thread[3];
+    Sixaxis_Context context[3];
     int i;
 
     wiringPiSetup();
@@ -20,11 +21,10 @@ int main(void) {
     }
 
     for (i = 0; i < 3; i++) {
-        Sixaxis_Context context;
-        context.state = (void*)state;
-        context.judge = i;
+        context[i].state = (void*)state;
+        context[i].judge = i;
 
-        pthread_create(&thread[i], NULL, sixaxis_thread, (void*)&context);
+        pthread_create(&thread[i], NULL, sixaxis_thread, (void*) &context[i]);
     }
 
     /* wait for the input thread and state thread to quit */

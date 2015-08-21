@@ -79,7 +79,7 @@ void *sixaxis_thread(void *sixaxis_context) {
         sample = sample_sixaxis(&event, js);
         if (sample && is_button(&event)) {
 
-            printf("Buttton %d is %s\n", event.number, event.value == 0? "up" : "down");
+            //printf("Buttton %d is %s\n", event.number, event.value == 0? "up" : "down");
             /* Button L2 is our control button, you can't key any values in if it is not held down */
             if (event.number == BUTTON_L2) {
                 active = event.value;
